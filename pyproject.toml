@@ -1,0 +1,46 @@
+[project]
+name = "mcp-exe-automation"
+version = "1.0.0"
+description = "MCP server for automating any Windows desktop application"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Sohel Mukadam"}
+]
+keywords = ["mcp", "windows", "automation", "pywinauto", "desktop", "ui-automation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Desktop Environment",
+]
+
+dependencies = [
+    "mcp>=1.0.0",
+    "pywinauto>=0.6.8",
+    "Pillow>=10.0.0",
+    "pywin32>=306",
+    "psutil>=5.9.0",
+    "comtypes>=1.2.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/sohelmukadam/mcp-exe-automation"
+Repository = "https://github.com/sohelmukadam/mcp-exe-automation"
+Issues = "https://github.com/sohelmukadam/mcp-exe-automation/issues"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["src*"]

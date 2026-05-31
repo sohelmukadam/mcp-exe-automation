@@ -179,7 +179,7 @@ def launch_app(
         return launch_application(exe_path, args, work_dir, backend, timeout)
     except Exception as e:
         logger.error("Failed to launch '%s': %s", exe_path, e)
-        return {"error": str(e)}
+        return _make_error(e, f"launch '{exe_path}'")
 
 
 @mcp.tool()
@@ -201,7 +201,7 @@ def attach_app(
         return attach_to_application(pid, title, exe_name, backend)
     except Exception as e:
         logger.error("Failed to attach: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "attach to application")
 
 
 @mcp.tool()
@@ -215,7 +215,7 @@ def terminate_app(pid: int) -> dict:
         return terminate_application(pid)
     except Exception as e:
         logger.error("Failed to terminate PID %d: %s", pid, e)
-        return {"error": str(e)}
+        return _make_error(e, f"terminate PID {pid}")
 
 
 @mcp.tool()
@@ -225,7 +225,7 @@ def list_apps() -> list[dict]:
         return list_running_applications()
     except Exception as e:
         logger.error("Failed to list apps: %s", e)
-        return [{"error": str(e)}]
+        return [_make_error(e, "list applications")]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -244,7 +244,7 @@ def list_windows_tool(visible_only: bool = True) -> list[dict]:
         return list_windows(visible_only)
     except Exception as e:
         logger.error("Failed to list windows: %s", e)
-        return [{"error": str(e)}]
+        return [_make_error(e, "list windows")]
 
 
 @mcp.tool()
@@ -261,7 +261,7 @@ def get_focused_window() -> dict:
         return get_active_window()
     except Exception as e:
         logger.error("Failed to get active window: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "get active window")
 
 
 @mcp.tool()
@@ -280,7 +280,7 @@ def inspect_window(window_title: str, max_depth: int = 8) -> dict:
         return {"window_title": window_title, "controls": tree}
     except Exception as e:
         logger.error("Failed to inspect window '%s': %s", window_title, e)
-        return {"error": str(e)}
+        return _make_error(e, f"inspect window '{window_title}'")
 
 
 @mcp.tool()
@@ -337,7 +337,7 @@ def manage_window(
             return {"error": f"Unknown action: {action}"}
     except Exception as e:
         logger.error("Failed to %s window '%s': %s", action, window_title, e)
-        return {"error": str(e)}
+        return _make_error(e, f"{action} window '{window_title}'")
 
 
 @mcp.tool()
@@ -355,7 +355,7 @@ def wait_window(
         return wait_for_window(window_title, timeout)
     except Exception as e:
         logger.error("Failed waiting for window '%s': %s", window_title, e)
-        return {"error": str(e)}
+        return _make_error(e, f"wait for window '{window_title}'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -480,7 +480,7 @@ def select_combo_item(
         return select_combobox_item(window_title, control_identifier, item_text)
     except Exception as e:
         logger.error("Failed to select in combobox: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"select '{item_text}' in combobox '{control_identifier}'")
 
 
 @mcp.tool()
@@ -500,7 +500,7 @@ def toggle_checkbox(
         return check_checkbox(window_title, control_identifier, check)
     except Exception as e:
         logger.error("Failed to toggle checkbox: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"toggle checkbox '{control_identifier}'")
 
 
 @mcp.tool()
@@ -520,7 +520,7 @@ def select_list_item(
         return select_listbox_item(window_title, control_identifier, item_text)
     except Exception as e:
         logger.error("Failed to select list item: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"select '{item_text}' in list '{control_identifier}'")
 
 
 @mcp.tool()
@@ -540,7 +540,7 @@ def select_tab_tool(
         return select_tab(window_title, control_identifier, tab_name)
     except Exception as e:
         logger.error("Failed to select tab: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"select tab '{tab_name}'")
 
 
 @mcp.tool()
@@ -562,7 +562,7 @@ def scroll_control_tool(
         return scroll_control(window_title, control_identifier, direction, amount)
     except Exception as e:
         logger.error("Failed to scroll: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"scroll '{control_identifier}'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -595,7 +595,7 @@ def send_keys_tool(
         return send_keys(keys, window_title)
     except Exception as e:
         logger.error("Failed to send keys: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "send keys")
 
 
 @mcp.tool()
@@ -615,7 +615,7 @@ def send_hotkey_tool(
         return send_hotkey(modifiers, key, window_title)
     except Exception as e:
         logger.error("Failed to send hotkey: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"send hotkey {'+'.join(modifiers)}+{key}")
 
 
 @mcp.tool()
@@ -637,7 +637,7 @@ def click_at(
         return mouse_click(x, y, button, double)
     except Exception as e:
         logger.error("Failed to click at (%d, %d): %s", x, y, e)
-        return {"error": str(e)}
+        return _make_error(e, f"click at ({x}, {y})")
 
 
 @mcp.tool()
@@ -652,7 +652,7 @@ def move_mouse(x: int, y: int) -> dict:
         return mouse_move(x, y)
     except Exception as e:
         logger.error("Failed to move mouse: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "move mouse")
 
 
 @mcp.tool()
@@ -676,7 +676,7 @@ def drag_mouse(
         return mouse_drag(start_x, start_y, end_x, end_y, button)
     except Exception as e:
         logger.error("Failed to drag: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "mouse drag")
 
 
 @mcp.tool()
@@ -697,7 +697,7 @@ def type_raw_text(
         return type_text_raw(text, window_title)
     except Exception as e:
         logger.error("Failed to type raw text: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "type raw text")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -720,7 +720,7 @@ def click_menu(
         return click_menu_item(window_title, menu_path)
     except Exception as e:
         logger.error("Failed to click menu '%s': %s", menu_path, e)
-        return {"error": str(e)}
+        return _make_error(e, f"click menu '{menu_path}'")
 
 
 @mcp.tool()
@@ -738,7 +738,7 @@ def list_menu_items(
         return get_menu_items(window_title, menu_name)
     except Exception as e:
         logger.error("Failed to list menu items: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "list menu items")
 
 
 @mcp.tool()
@@ -760,7 +760,7 @@ def context_menu_click(
         return use_context_menu(window_title, control_identifier, menu_item_text, control_type)
     except Exception as e:
         logger.error("Failed context menu action: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"context menu '{menu_item_text}'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -783,7 +783,7 @@ def take_screenshot(
         return capture_screenshot(window_title, output_path)
     except Exception as e:
         logger.error("Failed to take screenshot: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "take screenshot")
 
 
 @mcp.tool()
@@ -805,7 +805,7 @@ def take_control_screenshot(
         return capture_control_screenshot(window_title, control_identifier, control_type, output_path)
     except Exception as e:
         logger.error("Failed to capture control screenshot: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "capture control screenshot")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -832,7 +832,7 @@ def handle_dialog_tool(
         return handle_dialog(title, button_text, action, timeout)
     except Exception as e:
         logger.error("Failed to handle dialog: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "handle dialog")
 
 
 @mcp.tool()
@@ -846,7 +846,7 @@ def inspect_dialog(title: Optional[str] = None) -> dict:
         return get_dialog_info(title)
     except Exception as e:
         logger.error("Failed to inspect dialog: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "inspect dialog")
 
 
 @mcp.tool()
@@ -868,7 +868,7 @@ def wait_dialog(
         return wait_for_dialog(title, timeout, action, button_text)
     except Exception as e:
         logger.error("Failed waiting for dialog '%s': %s", title, e)
-        return {"error": str(e)}
+        return _make_error(e, f"wait for dialog '{title}'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -883,7 +883,7 @@ def clipboard_get() -> dict:
         return get_clipboard_text()
     except Exception as e:
         logger.error("Failed to get clipboard: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "get clipboard")
 
 
 @mcp.tool()
@@ -897,7 +897,7 @@ def clipboard_set(text: str) -> dict:
         return set_clipboard_text(text)
     except Exception as e:
         logger.error("Failed to set clipboard: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "set clipboard")
 
 
 @mcp.tool()
@@ -911,7 +911,7 @@ def clipboard_paste(window_title: Optional[str] = None) -> dict:
         return paste_from_clipboard(window_title)
     except Exception as e:
         logger.error("Failed to paste: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "paste from clipboard")
 
 
 @mcp.tool()
@@ -925,7 +925,7 @@ def clipboard_copy(window_title: Optional[str] = None) -> dict:
         return copy_to_clipboard(window_title)
     except Exception as e:
         logger.error("Failed to copy: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, "copy to clipboard")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -954,7 +954,7 @@ def wait_for_control_tool(
         return wait_for_control(window_title, control_identifier, control_type, timeout, state)
     except Exception as e:
         logger.error("Failed waiting for control: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"wait for control '{control_identifier}'")
 
 
 @mcp.tool()
@@ -969,7 +969,7 @@ def wait_window_close(title: str, timeout: float = 30.0) -> dict:
         return wait_for_window_close(title, timeout)
     except Exception as e:
         logger.error("Failed waiting for window close: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"wait for window close '{title}'")
 
 
 @mcp.tool()
@@ -984,7 +984,7 @@ def wait_app_idle(window_title: str, timeout: float = 30.0) -> dict:
         return wait_for_idle(window_title, timeout)
     except Exception as e:
         logger.error("Failed waiting for idle: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"wait for idle '{window_title}'")
 
 
 @mcp.tool()
@@ -1008,7 +1008,7 @@ def wait_text_change(
         return wait_for_text_change(window_title, control_identifier, current_text, timeout, control_type)
     except Exception as e:
         logger.error("Failed waiting for text change: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"wait for text change in '{control_identifier}'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1030,7 +1030,7 @@ def element_at_point(x: int, y: int) -> dict:
         return get_element_at_point(x, y)
     except Exception as e:
         logger.error("Failed to get element at (%d, %d): %s", x, y, e)
-        return {"error": str(e)}
+        return _make_error(e, f"get element at ({x}, {y})")
 
 
 @mcp.tool()
@@ -1052,7 +1052,7 @@ def get_control_props(
         return get_control_properties(window_title, control_identifier, control_type)
     except Exception as e:
         logger.error("Failed to get properties: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"get properties of '{control_identifier}'")
 
 
 @mcp.tool()
@@ -1074,7 +1074,7 @@ def tree_expand(
         return expand_tree_item(window_title, tree_identifier, item_path, control_type)
     except Exception as e:
         logger.error("Failed to expand tree item: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"expand tree item '{item_path}'")
 
 
 @mcp.tool()
@@ -1096,7 +1096,7 @@ def tree_collapse(
         return collapse_tree_item(window_title, tree_identifier, item_path, control_type)
     except Exception as e:
         logger.error("Failed to collapse tree item: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"collapse tree item '{item_path}'")
 
 
 @mcp.tool()
@@ -1118,7 +1118,7 @@ def tree_select(
         return select_tree_item(window_title, tree_identifier, item_path, control_type)
     except Exception as e:
         logger.error("Failed to select tree item: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"select tree item '{item_path}'")
 
 
 @mcp.tool()
@@ -1140,7 +1140,7 @@ def read_grid(
         return read_datagrid(window_title, grid_identifier, max_rows, control_type)
     except Exception as e:
         logger.error("Failed to read grid: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"read grid '{grid_identifier}'")
 
 
 @mcp.tool()
@@ -1156,7 +1156,7 @@ def window_info(window_title: str) -> dict:
         return get_window_info(window_title)
     except Exception as e:
         logger.error("Failed to get window info: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"get window info '{window_title}'")
 
 
 @mcp.tool()
@@ -1170,7 +1170,7 @@ def windows_by_pid(pid: int) -> list[dict]:
         return find_windows_by_pid(pid)
     except Exception as e:
         logger.error("Failed to find windows for PID %d: %s", pid, e)
-        return [{"error": str(e)}]
+        return [_make_error(e, f"find windows for PID {pid}")]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1197,7 +1197,7 @@ def read_all_text(
         return get_all_text(window_title, max_depth)
     except Exception as e:
         logger.error("Failed to read all text from '%s': %s", window_title, e)
-        return {"error": str(e)}
+        return _make_error(e, f"read all text from '{window_title}'")
 
 
 @mcp.tool()
@@ -1219,7 +1219,7 @@ def control_state(
         return get_control_state(window_title, control_identifier, control_type)
     except Exception as e:
         logger.error("Failed to get control state: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"get state of '{control_identifier}'")
 
 
 @mcp.tool()
@@ -1246,7 +1246,7 @@ def wait_and_click_tool(
         return wait_and_click(window_title, control_identifier, control_type, timeout, click_type)
     except Exception as e:
         logger.error("Failed wait_and_click: %s", e)
-        return {"error": str(e)}
+        return _make_error(e, f"wait and click '{control_identifier}'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1451,8 +1451,11 @@ def type_text_by_handle(
         from src.automation.windows import get_window_by_handle
         import win32gui
         window = get_window_by_handle(window_handle)
+        # Bring window to foreground by handle directly
+        from src.automation.utils import bring_window_to_front
+        bring_window_to_front(window_handle)
+        # Get the title from the handle to pass to type_text
         title = win32gui.GetWindowText(window_handle)
-        # Use the window title from the handle for the standard type_text
         return type_text(title, control_identifier, text,
                         control_type=control_type, clear_first=clear_first,
                         press_enter=press_enter)
@@ -1478,6 +1481,8 @@ def get_text_by_handle(
     """
     try:
         import win32gui
+        from src.automation.utils import bring_window_to_front
+        bring_window_to_front(window_handle)
         title = win32gui.GetWindowText(window_handle)
         return get_control_text(title, control_identifier, control_type=control_type)
     except Exception as e:

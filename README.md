@@ -8,6 +8,7 @@ A Model Context Protocol (MCP) server for automating any Windows desktop applica
 
 - [Features](#features)
 - [Requirements](#requirements)
+- [Quick Start](#quick-start)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Running the Server](#running-the-server)
@@ -44,12 +45,35 @@ A Model Context Protocol (MCP) server for automating any Windows desktop applica
 
 ---
 
-## Installation
+## Quick Start
 
 ```bash
 git clone https://github.com/sohelmukadam/mcp-exe-automation.git
 cd mcp-exe-automation
 pip install -r requirements.txt
+python run.py
+```
+
+The server starts and listens for MCP messages on stdio. Connect any MCP client (Claude Desktop, VS Code, etc.) to start automating Windows apps.
+
+---
+
+## Installation
+
+### From Source
+
+```bash
+git clone https://github.com/sohelmukadam/mcp-exe-automation.git
+cd mcp-exe-automation
+pip install -r requirements.txt
+```
+
+### Using pip (editable install)
+
+```bash
+git clone https://github.com/sohelmukadam/mcp-exe-automation.git
+cd mcp-exe-automation
+pip install -e .
 ```
 
 ### Dependencies
@@ -69,7 +93,7 @@ pip install -r requirements.txt
 
 ### Claude Desktop
 
-Add to your `claude_desktop_config.json`:
+Add to your `claude_desktop_config.json` (typically at `%APPDATA%\Claude\claude_desktop_config.json`):
 
 ```json
 {
@@ -85,7 +109,7 @@ Add to your `claude_desktop_config.json`:
 
 ### VS Code (Copilot / Continue)
 
-Add to your MCP settings:
+Add to your VS Code `settings.json` or `.vscode/mcp.json`:
 
 ```json
 {
@@ -104,38 +128,30 @@ Add to your MCP settings:
 ### Generic MCP Client (stdio transport)
 
 ```bash
-cd /path/to/mcp-exe-automation
+cd mcp-exe-automation
 python run.py
 ```
 
-The server communicates over stdin/stdout using the MCP protocol.
+The server communicates over stdin/stdout using the MCP JSON-RPC protocol.
 
 ---
 
 ## Running the Server
 
 ```bash
-# Set PYTHONPATH and run
 cd mcp-exe-automation
-set PYTHONPATH=.
 python run.py
 ```
 
-Or in PowerShell:
+That is it. The `run.py` entry point handles path setup automatically -- no need to set `PYTHONPATH` or any environment variables.
 
-```powershell
-cd mcp-exe-automation
-$env:PYTHONPATH = "."
-python run.py
-```
-
-The server starts and listens for MCP messages on stdio.
+Logs are written to stderr so they do not interfere with the MCP protocol on stdout.
 
 ---
 
 ## Tool Reference
 
-### Application Process Management
+### Application Process Management (4 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -144,7 +160,7 @@ The server starts and listens for MCP messages on stdio.
 | `terminate_app` | Terminate an application |
 | `list_apps` | List running applications with window info |
 
-### Window Discovery and Management
+### Window Discovery and Management (9 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -158,7 +174,7 @@ The server starts and listens for MCP messages on stdio.
 | `wait_window` | Wait for a window to appear |
 | `wait_window_close` | Wait for a window to close |
 
-### Control Interaction
+### Control Interaction (18 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -181,7 +197,7 @@ The server starts and listens for MCP messages on stdio.
 | `wait_and_click_tool` | Wait for a control and click it |
 | `wait_text_change` | Wait for text content to change |
 
-### Keyboard and Mouse
+### Keyboard and Mouse (6 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -192,7 +208,7 @@ The server starts and listens for MCP messages on stdio.
 | `move_mouse` | Move the mouse to coordinates |
 | `drag_mouse` | Drag from one point to another |
 
-### Menu Navigation
+### Menu Navigation (3 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -200,14 +216,14 @@ The server starts and listens for MCP messages on stdio.
 | `list_menu_items` | List available menu items |
 | `context_menu_click` | Open context menu and click an item |
 
-### Screenshots
+### Screenshots (2 tools)
 
 | Tool | Description |
 |------|-------------|
 | `take_screenshot` | Capture the full screen or a specific window |
 | `take_control_screenshot` | Capture a specific control |
 
-### Clipboard
+### Clipboard (4 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -216,7 +232,7 @@ The server starts and listens for MCP messages on stdio.
 | `clipboard_copy` | Send Ctrl+C to copy selection |
 | `clipboard_paste` | Send Ctrl+V to paste |
 
-### Dialogs
+### Dialogs (3 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -224,7 +240,7 @@ The server starts and listens for MCP messages on stdio.
 | `inspect_dialog` | Get information about a dialog |
 | `wait_dialog` | Wait for a dialog to appear |
 
-### Tree and Grid Controls
+### Tree and Grid Controls (5 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -234,14 +250,14 @@ The server starts and listens for MCP messages on stdio.
 | `read_grid` | Read contents of a data grid |
 | `element_at_point` | Identify the UI element at screen coordinates |
 
-### Compound Operations
+### Compound Operations (2 tools)
 
 | Tool | Description |
 |------|-------------|
 | `type_and_verify` | Type text and verify it was entered correctly |
 | `click_and_check` | Click a control and report what changed |
 
-### Synchronization
+### Synchronization (1 tool)
 
 | Tool | Description |
 |------|-------------|
@@ -263,43 +279,67 @@ Returns all visible windows with title, handle, PID, class name, and rectangle.
 
 ```
 Tool: type_text_tool
-Args: window_title="Untitled - Notepad", control_identifier="RichEditD2DPT", text="Hello World", clear_first=true
+Args:
+  window_title: "Untitled - Notepad"
+  control_identifier: "RichEditD2DPT"
+  text: "Hello World"
+  clear_first: true
 ```
 
 ### Click a button in any application
 
 ```
 Tool: click_control_tool
-Args: window_title="My App", control_identifier="btnSubmit", control_type="Button"
+Args:
+  window_title: "My App"
+  control_identifier: "btnSubmit"
+  control_type: "Button"
 ```
 
 ### Read a document from Word
 
 ```
 Tool: read_control_text
-Args: window_title="Document1 - Word", control_identifier="_WwG", control_type="Document"
+Args:
+  window_title: "Document1 - Word"
+  control_identifier: "_WwG"
+  control_type: "Document"
 ```
 
 ### Find all controls in a window
 
 ```
 Tool: find_controls_tool
-Args: window_title="Calculator", control_type="Button"
+Args:
+  window_title: "Calculator"
+  control_type: "Button"
 ```
 
 ### Handle multiple windows with the same title
 
 ```
-1. Tool: list_windows_tool  (get the handle for the specific window you want)
-2. Tool: find_controls_by_handle  Args: window_handle=68052
-3. Tool: type_text_by_handle  Args: window_handle=68052, control_identifier="RichEditD2DPT", text="Hello"
+Step 1: list_windows_tool  (get the handle for the specific window)
+Step 2: find_controls_by_handle  (window_handle=68052)
+Step 3: type_text_by_handle  (window_handle=68052, control_identifier="RichEditD2DPT", text="Hello")
 ```
 
 ### Send keyboard shortcuts
 
 ```
 Tool: send_hotkey_tool
-Args: window_title="My App", keys="ctrl+s"
+Args:
+  modifiers: ["ctrl"]
+  key: "s"
+  window_title: "My App"
+```
+
+### Launch an application and interact with it
+
+```
+Step 1: launch_app  (exe_path="C:\\Windows\\notepad.exe")
+Step 2: wait_window  (window_title="Notepad", timeout=10)
+Step 3: type_text_tool  (window_title="Notepad", control_identifier="RichEditD2DPT", text="Automated text")
+Step 4: send_hotkey_tool  (modifiers=["ctrl"], key="s", window_title="Notepad")
 ```
 
 ---
@@ -309,7 +349,8 @@ Args: window_title="My App", keys="ctrl+s"
 ```
 mcp-exe-automation/
     run.py                  # Entry point - starts the MCP server
-    requirements.txt        # Python dependencies
+    pyproject.toml          # Python project metadata and dependencies
+    requirements.txt        # Pinned dependencies for pip install
     src/
         __init__.py
         server.py           # FastMCP server with 57 tool registrations
@@ -324,12 +365,13 @@ mcp-exe-automation/
             clipboard.py    # Clipboard operations
             dialogs.py      # Dialog handling
             waits.py        # Wait conditions
-            utils.py        # Shared utilities (COM, retry, DPI, clipboard safety)
+            advanced.py     # Tree views, grids, property inspection
+            utils.py        # COM safety, retry, DPI, clipboard thread safety
         tools/
             __init__.py
     tests/
         test_comprehensive.py      # 20 cross-application tests
-        test_automation_fixes.py   # 6 robustness tests
+        test_automation_fixes.py   # 6 robustness regression tests
         test_stress.py             # Multi-app stress tests
 ```
 
@@ -376,8 +418,13 @@ Tested and verified with:
 - Default timeout is 5 seconds; pass a longer `timeout` parameter if needed
 - Use `wait_app_idle` before interacting with slow applications
 
+### Multiple windows with the same title
+
+- Use `list_windows_tool` to get the unique handle for each window
+- Then use `find_controls_by_handle`, `type_text_by_handle`, or `get_text_by_handle`
+
 ---
 
 ## License
 
-MIT
+MIT License. See [LICENSE](LICENSE) for details.
