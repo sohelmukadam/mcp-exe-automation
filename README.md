@@ -367,9 +367,9 @@ mcp-exe-automation/
             waits.py        # Wait conditions
             advanced.py     # Tree views, grids, property inspection
             utils.py        # COM safety, retry, DPI, clipboard thread safety
-        tools/
-            __init__.py
     tests/
+        test_notepad.py            # Notepad-focused integration tests
+        test_apps.py               # Multi-app integration tests
         test_comprehensive.py      # 20 cross-application tests
         test_automation_fixes.py   # 6 robustness regression tests
         test_stress.py             # Multi-app stress tests

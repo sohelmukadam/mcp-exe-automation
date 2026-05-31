@@ -37,3 +37,9 @@ htmlcov/
 
 # Logs
 *.log
+
+# Debug scripts
+tests/debug_*.py
+
+# Unused scaffolding
+src/tools/
